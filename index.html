@@ -3,483 +3,410 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#03090d">
-<title>Hikari's — Hermes Interface</title>
-<meta name="description" content="Hikari's 個人主頁 — 與 Hermes 互動">
+<meta name="theme-color" content="#ffffff">
+<title>Hikari's — Nothing to worry about</title>
+<meta name="description" content="Hikari's 個人主頁：像一本動漫雜誌的封面，目次、連載與 Hermes 編輯部。">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Hikari's — Hermes Interface">
-<meta property="og:description" content="Nothing to worry about">
+<meta property="og:title" content="Hikari's — Nothing to worry about">
+<meta property="og:description" content="Hikari's 個人主頁">
 <meta property="og:locale" content="zh_TW">
 <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700;900&family=Shippori+Mincho:wght@500;800&display=swap" rel="stylesheet">
 <style>
-  /* Hologram HUD — one cold hue + one warm accent (accent only for locked / live values) */
+  /* Anime-magazine layout, Musical Isotope tokens:
+     white page + ink chrome, the pastel aura gradient as the only colour field,
+     square corners, 1px lines, no shadows. White text on aura only at large sizes;
+     small text on aura sits in ink stickers. */
   :root{
-    --bg:#03090d; --hue:#4de6ff; --hue-2:rgba(77,230,255,.55); --hue-3:rgba(77,230,255,.22);
-    --hue-4:rgba(77,230,255,.08); --hot:#e9fdff; --accent:#ff7a2f; --plate:rgba(3,13,19,.84);
-    --f-ui:"Rajdhani","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
-    --f-mono:"Share Tech Mono",ui-monospace,Menlo,Consolas,monospace;
+    --white:#fff; --ink:#1a1a1a; --grey-500:#979797; --grey-300:#c5c5c5; --grey-100:#f8f8f8;
+    --coral:#fe8480; --coral-b:#f5898d; --cyan:#7feeff; --cyan-b:#7fe1fe;
+    --indigo:#7f83f4; --indigo-b:#8590f9; --pink:#ff7fc4; --pink-b:#fc81c7; --fade:rgba(255,255,255,0);
+    --sans:"Noto Sans JP","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+    --min:"Shippori Mincho","Noto Serif TC","Noto Serif JP",serif;
+    --ease:cubic-bezier(.25,.46,.45,.94);
   }
+  /* fluid root, as in the system: 20px >=1440, vw-scaled below */
+  html{font-size:20px;scroll-behavior:smooth}
+  @media (max-width:1439px){html{font-size:1.4285714286vw}}
+  @media (max-width:767px){html{font-size:2.6666666667vw}}
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{min-height:100%}
-  body{background:var(--bg);color:var(--hue);font-family:var(--f-ui);font-weight:500;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  body{background:var(--white);color:var(--ink);font-family:var(--sans);font-weight:500;letter-spacing:.03em;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.6}
   a{color:inherit;text-decoration:none}
-  .mono{font-family:var(--f-mono);letter-spacing:.08em;font-size:12px;text-transform:uppercase}
+  button{font:inherit;color:inherit}
+  .eng{font-family:var(--sans);font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+  .min{font-family:var(--min)}
 
-  /* stage layers */
-  #stage{position:fixed;inset:0;z-index:0;background:
-    radial-gradient(ellipse 50% 55% at 50% 38%, rgba(30,120,150,.32), transparent 70%),
-    radial-gradient(ellipse at 50% 50%, #04141b 0%, var(--bg) 72%)}
-  #grid{position:fixed;inset:-10%;z-index:0;pointer-events:none;
-    background-image:radial-gradient(var(--hue-3) 1px, transparent 1.3px);background-size:28px 28px;
-    -webkit-mask-image:radial-gradient(ellipse at center,#000 20%,transparent 75%);mask-image:radial-gradient(ellipse at center,#000 20%,transparent 75%);
-    transition:transform .2s linear}
-  #cv{position:fixed;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
-  #vig{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.78) 100%)}
-  #scan{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.5;mix-blend-mode:screen;
-    background:repeating-linear-gradient(0deg,rgba(77,230,255,.035) 0 1px,transparent 1px 3px)}
+  /* ---------- aura field ---------- */
+  .aura{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+  .aura i{position:absolute;width:200%;height:200%;will-change:transform;animation:20s linear infinite}
+  .g1{top:-100%;left:-100%;background:radial-gradient(var(--coral) 0%,var(--coral-b) 30%,var(--fade) 60%);animation-name:a1}
+  .g2{top:-100%;right:-100%;background:radial-gradient(var(--cyan) 0%,var(--cyan-b) 30%,var(--fade) 60%);animation-name:a2}
+  .g3{bottom:-100%;right:-100%;background:radial-gradient(var(--indigo) 0%,var(--indigo-b) 30%,var(--fade) 60%);animation-name:a3}
+  .g4{bottom:-100%;left:-100%;background:radial-gradient(var(--pink) 0%,var(--pink-b) 30%,var(--fade) 60%);animation-name:a4}
+  @keyframes a1{25%{transform:translate(50%,0)}50%{transform:translate(50%,50%)}75%{transform:translate(0,50%)}to{transform:none}}
+  @keyframes a2{25%{transform:translate(0,50%)}50%{transform:translate(-50%,50%)}75%{transform:translate(-50%,0)}to{transform:none}}
+  @keyframes a3{25%{transform:translate(-50%,0)}50%{transform:translate(-50%,-50%)}75%{transform:translate(0,-50%)}to{transform:none}}
+  @keyframes a4{25%{transform:translate(0,-50%)}50%{transform:translate(50%,-50%)}75%{transform:translate(50%,0)}to{transform:none}}
+  /* screentone: print-dot overlay that reads as manga paper */
+  .tone{position:absolute;inset:0;pointer-events:none;opacity:.6;
+    background-image:radial-gradient(rgba(255,255,255,.75) 1.1px,transparent 1.6px);background-size:.7rem .7rem;
+    -webkit-mask-image:linear-gradient(115deg,#000 0%,transparent 55%);mask-image:linear-gradient(115deg,#000 0%,transparent 55%)}
 
-  /* HUD furniture */
-  .hud{position:fixed;z-index:5;pointer-events:none}
-  .br{width:46px;height:46px;border:1.5px solid var(--hue-2)}
-  .br.tl{top:14px;left:14px;border-right:0;border-bottom:0}.br.tr{top:14px;right:14px;border-left:0;border-bottom:0}
-  .br.bl{bottom:14px;left:14px;border-right:0;border-top:0}.br.brr{bottom:14px;right:14px;border-left:0;border-top:0}
-  #hudTL{top:24px;left:72px;color:var(--hue-2)}#hudTR{top:24px;right:72px;text-align:right;color:var(--hue-2)}
-  #hudBL{bottom:24px;left:72px;color:var(--hue-2)}#hudBR{bottom:24px;right:72px;text-align:right;color:var(--hue-2)}
-  .hud b{color:var(--hue);font-weight:400}
-  .blink{animation:blink 1.1s steps(2,end) infinite}@keyframes blink{50%{opacity:.15}}
+  .sec{position:relative}
+  .sec.color{color:var(--white);overflow:hidden}
+  .in{position:relative;z-index:2}
 
-  /* layout */
-  main{position:relative;z-index:6;min-height:100vh;max-width:1560px;margin:0 auto;
-    display:grid;grid-template-columns:minmax(230px,290px) minmax(0,1fr) minmax(250px,320px);gap:clamp(18px,2.4vw,40px);
-    padding:76px clamp(40px,5vw,84px) 76px;align-items:start}
-  .col{display:flex;flex-direction:column;gap:14px;min-width:0}
-  .col-t{color:var(--hue-2);display:flex;align-items:center;gap:12px}
-  .col-t::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--hue-3),transparent)}
+  /* ---------- header ---------- */
+  .hd{position:absolute;top:0;left:0;right:0;z-index:20;height:4.35rem;display:flex;align-items:center;justify-content:space-between;
+    padding:0 3.4rem 0 2.4rem;color:var(--white)}
+  .hd .logo{font-weight:900;font-size:1.15rem;letter-spacing:.12em}
+  .hd nav{display:flex;gap:2.2rem;font-size:.7rem}
+  .hd nav a{opacity:1;transition:opacity .3s linear}.hd nav a:hover{opacity:.6}
+  .edge{position:absolute;top:0;bottom:0;right:2.95rem;width:1px;background:rgba(255,255,255,.7);z-index:3}
 
-  .plate{position:relative;background:var(--plate);border:1px solid var(--hue-3);padding:14px 18px;backdrop-filter:blur(3px);display:block;
-    transition:border-color .2s,transform .2s,box-shadow .2s}
-  .plate::before,.plate::after{content:"";position:absolute;width:10px;height:10px;border:1.5px solid var(--hue)}
-  .plate::before{top:-1px;left:-1px;border-right:0;border-bottom:0}.plate::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
+  /* ---------- cover ---------- */
+  .cover{min-height:max(100vh,46rem);display:grid;grid-template-rows:auto 1fr auto;padding:5.6rem 4.6rem 1.8rem 2.4rem;color:var(--white)}
+  .issue{display:flex;justify-content:space-between;align-items:center;font-size:.62rem;border-top:1px solid var(--white);border-bottom:1px solid var(--white);padding:.35rem 0}
+  .issue b{font-weight:900}
+  .stage{display:grid;grid-template-columns:minmax(0,1fr) 22rem;gap:1.5rem;align-items:center;padding:1.2rem 0}
+  .mast{position:relative}
+  .mast h1{font-weight:900;font-size:clamp(5rem,11.2vw,12.6rem);line-height:.86;letter-spacing:-.01em;color:var(--white);
+    margin-left:-.35rem;white-space:nowrap}
+  .mast h1 span{display:block}
+  .mast h1 .o{color:transparent;-webkit-text-stroke:2px var(--white)}
+  .tag{margin-top:1rem;display:flex;align-items:center;gap:.8rem;font-size:.8rem}
+  .tag .bar{flex:0 0 3.4rem;height:1px;background:var(--white)}
+  .lines{margin-top:1.6rem;display:flex;flex-direction:column;align-items:flex-start;gap:.5rem}
+  .lines a{background:var(--ink);color:var(--white);padding:.35rem .9rem .35rem .7rem;font-weight:700;font-size:.78rem;
+    display:inline-flex;align-items:center;gap:.7rem;transform:skewX(-12deg);transition:background .3s linear,color .3s linear}
+  .lines a>*{transform:skewX(12deg);display:inline-block}
+  .lines a em{font-style:normal;font-weight:900;font-size:.58rem;letter-spacing:.1em;border:1px solid var(--white);padding:0 .35rem;line-height:1.5}
+  .lines a:hover{background:var(--white);color:var(--ink)}.lines a:hover em{border-color:var(--ink)}
 
-  /* left: status + boot log */
-  .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:baseline}
-  .kv .k{color:var(--hue-2)}.kv .v{font-family:var(--f-mono);font-size:15px;color:var(--hue);text-align:right;letter-spacing:.06em}
-  .kv .v.lk{color:var(--accent);text-shadow:0 0 12px rgba(255,122,47,.5)}
-  #boot{font-family:var(--f-mono);font-size:12px;line-height:1.8;color:var(--hue-2);letter-spacing:.04em;min-height:150px;max-height:230px;overflow:hidden}
-  #boot .ok{color:var(--hue)}#boot .ok::before{content:"[ OK ] ";color:var(--accent)}
+  .art{position:relative;height:25rem;display:flex;align-items:center;justify-content:center;padding-right:5rem}
+  .ring{position:absolute;width:21rem;height:21rem;border:1px solid var(--white);border-radius:50%;animation:spin 20s linear infinite}
+  .ring::before{content:"";position:absolute;inset:1.1rem;border-radius:50%;border:1px dashed rgba(255,255,255,.85)}
+  .ring::after{content:"";position:absolute;inset:-.55rem;border-radius:50%;
+    background:repeating-conic-gradient(var(--white) 0 .4deg,transparent .4deg 6deg);
+    -webkit-mask:radial-gradient(circle,transparent 62%,#000 63%,#000 100%,transparent 100%);mask:radial-gradient(circle,transparent 62%,#000 63%,#000 100%,transparent 100%);opacity:.8}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .vert{position:absolute;right:.2rem;top:0;writing-mode:vertical-rl;font-family:var(--min);font-weight:800;font-size:2.6rem;letter-spacing:.2em;line-height:1;color:var(--white)}
+  .vert small{display:block;margin-top:.8rem;font:900 .6rem var(--sans);letter-spacing:.3em;writing-mode:vertical-rl}
+  .big{position:relative;font-weight:900;font-size:11rem;line-height:1;color:var(--white);opacity:.95;letter-spacing:-.02em;font-family:var(--sans)}
+  .burst{position:absolute;left:-1.6rem;bottom:.2rem;width:12.6rem;height:11.6rem;background:var(--white);color:var(--ink);
+    display:flex;align-items:center;justify-content:center;text-align:center;padding:1.5rem 1.4rem;font-weight:700;font-size:.62rem;line-height:1.55;transform:rotate(-6deg);cursor:pointer}
+  .burst b{display:block;font:900 .56rem var(--sans);letter-spacing:.18em;margin-bottom:.25rem}
+  .foot{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;font-size:.58rem}
+  .barcode{height:2rem;width:7.6rem;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 4px,var(--ink) 4px 5px,transparent 5px 8px,var(--ink) 8px 11px,transparent 11px 12px);border:.35rem solid var(--white);border-width:.35rem .35rem}
+  .cue{display:flex;align-items:center;gap:.7rem}
+  .cue i{display:block;width:1px;height:2.8rem;background:rgba(255,255,255,.35);position:relative;overflow:hidden}
+  .cue i::after{content:"";position:absolute;left:0;bottom:0;width:100%;background:var(--white);animation:cue 1.6s ease-in-out infinite}
+  @keyframes cue{0%{height:41%}50%{height:100%}100%{height:41%}}
 
-  /* center: agent */
-  .center{align-items:stretch}
-  #slot{height:clamp(230px,36vh,380px);margin:0 0 -6px}
-  .name{text-align:center;margin-top:-4px}
-  .name h1{font-family:var(--f-mono);font-weight:400;text-transform:uppercase;letter-spacing:.42em;font-size:clamp(26px,3.6vw,48px);
-    color:var(--hot);text-shadow:0 0 18px rgba(77,230,255,.55),0 0 2px rgba(77,230,255,.9);padding-left:.42em}
-  .name h1.lock{color:#fff;text-shadow:0 0 26px rgba(255,122,47,.9),0 0 3px var(--accent)}
-  .name .sub{color:var(--hue-2);margin-top:4px}
+  /* ---------- section titles ---------- */
+  .st{display:flex;align-items:flex-end;gap:1rem;margin-bottom:1.4rem}
+  .st h2{font-weight:900;font-size:2.6rem;line-height:1;letter-spacing:.1em;text-transform:uppercase}
+  .st span{font-family:var(--min);font-weight:800;font-size:.85rem;letter-spacing:.2em;padding-bottom:.25rem}
+  .st::after{content:"";flex:1;height:1px;background:currentColor;opacity:.5;margin-bottom:.45rem}
+  .wrap{width:min(100% - 8rem,60rem);margin:0 auto;padding:4.2rem 0}
 
-  #chat{max-height:clamp(120px,17vh,200px);overflow-y:auto;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:var(--hue-3) transparent}
-  .msg{font-size:17px;line-height:1.65;letter-spacing:.03em;font-weight:500}
-  .msg .who{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;margin-right:8px;color:var(--hue-2);text-transform:uppercase}
-  .msg.ai{color:var(--hot)}.msg.ai .who{color:var(--accent)}
-  .msg.me{color:var(--hue-2)}
-  .msg.ai.typing::after{content:"▮";margin-left:2px;animation:blink .7s steps(2,end) infinite;color:var(--hue)}
-  .voice{display:flex;gap:3px;align-items:flex-end;height:16px;margin-bottom:8px}
-  .voice i{width:3px;background:var(--hue);height:3px;opacity:.7;transition:height .08s}
-  .voice.on i{opacity:1}
+  /* ---------- contents (list rows) ---------- */
+  .rows a{display:grid;grid-template-columns:3.4rem 8rem 1fr auto;gap:1rem;align-items:baseline;padding:.95rem .4rem;border-bottom:1px solid var(--grey-300);
+    position:relative;transition:color .3s linear}
+  .rows a:first-child{border-top:1px solid var(--grey-300)}
+  .rows .no{font-weight:900;font-size:1.3rem;letter-spacing:.04em}
+  .rows .cat{font-size:.6rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--grey-500)}
+  .rows .ttl{font-size:.95rem;font-weight:700}
+  .rows .ttl small{display:block;font-size:.62rem;font-weight:500;color:var(--grey-500);margin-top:.1rem}
+  .rows .ar{font-size:.8rem;color:var(--grey-500);transition:transform .3s linear}
+  .rows a .aura{opacity:0;z-index:-1;transition:opacity .3s linear}
+  .rows a:hover{color:var(--white)}.rows a:hover .aura{opacity:1}.rows a:hover small,.rows a:hover .cat,.rows a:hover .ar{color:var(--white)}
+  .rows a:hover .ar{transform:translateX(.3rem)}
 
-  .cmd{display:flex;align-items:center;gap:10px;padding:0 0 0 14px;border:1px solid var(--hue-2);background:var(--plate);position:relative}
-  .cmd::before,.cmd::after{content:"";position:absolute;width:8px;height:8px;border:1.5px solid var(--hue)}
-  .cmd::before{top:-4px;left:-4px;border-right:0;border-bottom:0}.cmd::after{bottom:-4px;right:-4px;border-left:0;border-top:0}
-  .cmd:focus-within{box-shadow:0 0 26px rgba(77,230,255,.28);border-color:var(--hue)}
-  .cmd .pr{color:var(--accent);font-family:var(--f-mono)}
-  #in{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--hot);font:500 17px var(--f-ui);letter-spacing:.05em;padding:14px 0}
-  #in::placeholder{color:var(--hue-3)}
-  #send{background:none;border:0;border-left:1px solid var(--hue-3);color:var(--hue);padding:0 18px;align-self:stretch;cursor:pointer;
-    font:600 13px var(--f-ui);letter-spacing:.24em;text-transform:uppercase;transition:background .15s,color .15s}
-  #send:hover,#send:focus-visible{background:var(--hue);color:#031016;outline:none}
-  .chips{display:flex;gap:8px;flex-wrap:wrap}
-  .chip{background:var(--hue-4);border:1px solid var(--hue-3);color:var(--hue);padding:4px 12px;cursor:pointer;
-    font:500 12px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;transition:all .15s}
-  .chip:hover,.chip:focus-visible{border-color:var(--hue);background:rgba(77,230,255,.2);outline:none}
+  /* ---------- column (cards) ---------- */
+  .col2{padding:4.2rem 0}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem}
+  .card{display:flex;flex-direction:column;background:var(--ink);color:var(--white);transition:opacity .3s linear}
+  .card:hover{opacity:.82}
+  .card .pic{position:relative;aspect-ratio:4/3;overflow:hidden;background:var(--white)}
+  .card .pic .aura{inset:0}.card .pic .n{position:absolute;inset:0;display:flex;align-items:flex-end;padding:.7rem .9rem;z-index:2;
+    font-weight:900;font-size:3.2rem;line-height:.8;color:var(--white);letter-spacing:-.02em}
+  .card .pic .tg{position:absolute;top:.6rem;left:.6rem;z-index:2;background:var(--white);color:var(--ink);font:900 .5rem var(--sans);letter-spacing:.14em;padding:.15rem .5rem}
+  .card .tx{padding:.9rem 1rem 1.1rem}
+  .card .tx time{font-size:.55rem;color:var(--grey-500);letter-spacing:.14em}
+  .card h3{font-size:.85rem;font-weight:700;line-height:1.5;margin:.15rem 0 .3rem}
+  .card p{font-size:.62rem;color:var(--grey-500);line-height:1.7}
+  .more{display:inline-block;margin-top:1.6rem;border:1px solid var(--white);padding:.55rem 1.8rem;font-weight:900;font-size:.62rem;letter-spacing:.16em;transition:background .3s linear,color .3s linear}
+  .more:hover{background:var(--white);color:var(--ink)}
 
-  /* right: modules */
-  a.mod{padding:14px 18px 14px 20px}
-  a.mod:hover,a.mod:focus-visible{border-color:var(--hue);transform:translateX(-6px);box-shadow:0 0 26px rgba(77,230,255,.22),inset 0 0 30px rgba(77,230,255,.08);outline:none}
-  .mod .top{display:flex;justify-content:space-between;color:var(--hue-2);margin-bottom:4px}.mod .top b{color:var(--hue);font-weight:400}
-  .mod h2{font-weight:600;font-size:21px;letter-spacing:.1em;color:var(--hot);display:flex;justify-content:space-between;gap:10px}
-  .mod p{margin-top:4px;font-size:14px;color:rgba(190,240,250,.68);letter-spacing:.03em;line-height:1.55}
-  .arrow{display:inline-block;transition:transform .2s,color .2s}
-  a.mod:hover .arrow{color:var(--accent);transform:translateX(4px)}
-  .mod.empty{border-style:dashed;opacity:.5;padding:12px 18px}.mod.empty .top{margin:0}
+  /* ---------- hermes corner ---------- */
+  .hermes{display:grid;grid-template-columns:15rem 1fr;gap:2.2rem;align-items:start}
+  .hermes .who{background:var(--ink);color:var(--white);padding:1.1rem 1.2rem}
+  .hermes .who .eng{font-size:.55rem;color:var(--grey-500)}
+  .hermes .who h3{font-weight:900;font-size:1.6rem;letter-spacing:.16em;line-height:1.1;margin:.2rem 0 .6rem}
+  .hermes .who p{font-size:.62rem;line-height:1.8;color:var(--grey-300)}
+  #chat{border:1px solid var(--ink);padding:.9rem 1.1rem;min-height:8.6rem;max-height:13rem;overflow-y:auto;display:flex;flex-direction:column;gap:.6rem;scrollbar-width:thin}
+  .msg{font-size:.78rem;line-height:1.75}
+  .msg .w{font:900 .52rem var(--sans);letter-spacing:.16em;margin-right:.6rem;color:var(--grey-500)}
+  .msg.ai .w{color:var(--coral)}
+  .msg.me{color:var(--grey-500)}
+  .msg.ai.typing::after{content:"▮";margin-left:.15rem;animation:bl .7s steps(2,end) infinite}
+  @keyframes bl{50%{opacity:0}}
+  .cmd{display:flex;margin-top:.8rem;border:1px solid var(--ink)}
+  .cmd span{padding:.7rem 0 0 .9rem;font-weight:900;color:var(--coral)}
+  #in{flex:1;min-width:0;border:0;outline:0;background:none;font:500 .8rem var(--sans);letter-spacing:.05em;padding:.7rem .7rem;color:var(--ink)}
+  #in::placeholder{color:var(--grey-500)}
+  #send{border:0;border-left:1px solid var(--ink);background:var(--white);padding:0 1.4rem;font:900 .58rem var(--sans);letter-spacing:.16em;cursor:pointer;transition:background .3s linear,color .3s linear}
+  #send:hover,#send:focus-visible{background:var(--ink);color:var(--white);outline:none}
+  .chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.7rem}
+  .chip{border:1px solid var(--grey-300);background:var(--white);padding:.2rem .8rem;font:900 .52rem var(--sans);letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:background .3s linear,color .3s linear,border-color .3s linear}
+  .chip:hover,.chip:focus-visible{background:var(--ink);color:var(--white);border-color:var(--ink);outline:none}
 
-  /* reveal */
-  .rv{opacity:0;transform:translateY(10px)}
-  .on .rv{animation:rv .5s steps(6,end) forwards;animation-delay:var(--d,0s)}@keyframes rv{to{opacity:1;transform:none}}
-  noscript .rv{opacity:1;transform:none}
+  /* ---------- colophon ---------- */
+  footer{background:var(--ink);color:var(--white);padding:2.6rem 0 2rem}
+  footer .wrap{padding:0;display:flex;justify-content:space-between;gap:2rem;align-items:flex-end}
+  footer .big2{font-weight:900;font-size:1.6rem;letter-spacing:.12em}
+  footer p{font-size:.58rem;color:var(--grey-500);line-height:1.9;letter-spacing:.06em}
+  footer .r{text-align:right}
 
-  @media (max-width:1100px){
-    main{grid-template-columns:1fr;padding:78px 22px 90px;gap:26px}
-    .center{order:1}.col.right{order:2}.col.left{order:3}
-    #hudTR,#hudBR{display:none}#hudTL,#hudBL{left:30px}
-    #slot{height:clamp(240px,36vh,360px)}
+  /* ---------- reveal ---------- */
+  .ani{opacity:0;transform:translateY(2rem);transition:opacity .5s var(--ease),transform .5s var(--ease)}
+  .ani.on{opacity:1;transform:none}
+  noscript .ani,.nojs .ani{opacity:1;transform:none}
+
+  /* ---------- mobile ---------- */
+  @media (max-width:767px){
+    .hd{padding:0 2rem 0 1.6rem;height:4rem}.hd nav{display:none}.hd .logo{font-size:1.3rem}
+    .edge{right:1rem}
+    .cover{padding:4.8rem 2.6rem 1.6rem 1.6rem;min-height:max(100vh,60rem)}
+    .issue{font-size:1.1rem}
+    .stage{grid-template-columns:1fr;gap:0;padding:1.6rem 0}
+    .mast h1{font-size:19vw}.mast h1 .o{-webkit-text-stroke:1.5px var(--white)}
+    .tag{font-size:1.5rem;margin-top:1.4rem}.tag .bar{flex-basis:5rem}
+    .lines a{font-size:1.5rem;padding:.7rem 1.4rem .7rem 1.2rem}.lines a em{font-size:1rem}
+    .lines{gap:.8rem;margin-top:2.2rem}
+    .art{height:36rem;margin-top:1.6rem;padding-right:7rem}
+    .ring{width:30rem;height:30rem}
+    .vert{font-size:4.8rem;right:0}.vert small{font-size:1.1rem}
+    .big{font-size:18rem}
+    .burst{width:21rem;height:19rem;font-size:1.25rem;left:-1rem;padding:2.6rem 2.4rem}.burst b{font-size:1rem}
+    .foot{font-size:1.1rem}.barcode{height:3.4rem;width:13rem}
+    .cue i{height:5rem}
+    .wrap{width:min(100% - 5.2rem,60rem);padding:5.6rem 0}
+    .st h2{font-size:4.2rem}.st span{font-size:1.5rem}
+    .rows a{grid-template-columns:5rem 1fr auto;gap:1.2rem;padding:1.6rem .4rem}
+    .rows .cat{display:none}.rows .no{font-size:2.6rem}.rows .ttl{font-size:1.7rem}.rows .ttl small{font-size:1.2rem}.rows .ar{font-size:1.6rem}
+    .cards{grid-template-columns:1fr;gap:2.4rem}
+    .card .pic .n{font-size:6rem}.card .pic .tg{font-size:1rem;padding:.3rem .9rem}
+    .card .tx{padding:1.6rem 1.8rem 2rem}.card time{font-size:1.1rem}.card h3{font-size:1.8rem}.card p{font-size:1.25rem}
+    .more{font-size:1.2rem;padding:1rem 3rem;margin-top:3rem}
+    .hermes{grid-template-columns:1fr;gap:2rem}
+    .hermes .who{padding:2rem 2.2rem}.hermes .who .eng{font-size:1.1rem}.hermes .who h3{font-size:3.4rem}.hermes .who p{font-size:1.3rem}
+    #chat{min-height:20rem;max-height:30rem;padding:1.6rem 1.8rem;gap:1.2rem}
+    .msg{font-size:1.5rem}.msg .w{font-size:1rem}
+    #in{font-size:1.6rem;padding:1.3rem 1.4rem}.cmd span{padding:1.3rem 0 0 1.6rem;font-size:1.6rem}
+    #send{font-size:1.1rem;padding:0 2.4rem}
+    .chip{font-size:1rem;padding:.5rem 1.4rem}
+    footer{padding:5rem 0 4rem}footer .wrap{flex-direction:column;align-items:flex-start;gap:2rem}
+    footer .big2{font-size:3rem}footer p{font-size:1.2rem}footer .r{text-align:left}
   }
-  @media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none}.on .rv,.blink{animation:none}}
+  @media (prefers-reduced-motion:reduce){
+    .aura i,.ring,.cue i::after{animation:none}.ani{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}
+  }
 </style>
 </head>
 <body>
-<div id="stage"></div><div id="grid"></div>
-<canvas id="cv" aria-hidden="true"></canvas>
-<div id="vig"></div><div id="scan"></div>
+<script>document.documentElement.classList.add("js")</script>
 
-<div class="hud br tl"></div><div class="hud br tr"></div><div class="hud br bl"></div><div class="hud br brr"></div>
-<div class="hud mono" id="hudTL"><b>HIKARI'S</b> // HOME <span class="blink">▮</span></div>
-<div class="hud mono" id="hudTR"><b id="clock">--:--:--</b> UTC+8<br><span id="status">LINK ESTABLISHED</span></div>
-<div class="hud mono" id="hudBL">SCAN <b id="scanpct">0%</b> · UPLINK <b>STANDBY</b></div>
-<div class="hud mono" id="hudBR">X <b id="mx">0000</b> · Y <b id="my">0000</b></div>
+<header class="hd">
+  <a class="logo eng" href="/">HIKARI'S</a>
+  <nav class="eng"><a href="#contents">Contents</a><a href="#column">Column</a><a href="#hermes">Hermes</a></nav>
+</header>
 
-<main id="root">
-  <!-- LEFT: telemetry + boot log -->
-  <aside class="col left" aria-label="系統狀態">
-    <div class="col-t mono rv" style="--d:.3s">System // 狀態</div>
-    <div class="plate rv" style="--d:.45s">
-      <div class="kv mono">
-        <span class="k">Date</span><span class="v" id="date">----</span>
-        <span class="k">Local</span><span class="v lk" id="clock2">--:--:--</span>
-        <span class="k">Session</span><span class="v" id="uptime">00:00</span>
-        <span class="k">Agent</span><span class="v lk">HERMES</span>
-        <span class="k">Mode</span><span class="v">LOCAL CMD</span>
+<!-- ============ COVER ============ -->
+<section class="sec color cover" id="top">
+  <div class="aura"><i class="g1"></i><i class="g2"></i><i class="g3"></i><i class="g4"></i></div>
+  <div class="tone"></div>
+  <div class="edge"></div>
+
+  <div class="in issue eng"><span>Vol.01</span><span id="issue">ISSUE 2026.10</span><b>Free</b></div>
+
+  <div class="in stage">
+    <div class="mast">
+      <h1 class="eng" aria-label="Hikari's"><span>Hikari</span><span class="o">'s</span></h1>
+      <div class="tag eng"><i class="bar"></i><span>Nothing to worry about</span></div>
+      <nav class="lines" aria-label="特集">
+        <a href="#hermes"><em class="eng">特集</em><span>與 Hermes 聊聊天</span></a>
+        <a href="/archives/"><em class="eng">連載</em><span>Git &amp; GitHub 教學手冊</span></a>
+        <a href="https://github.com/shangoyanyi" target="_blank" rel="noopener"><em class="eng">附錄</em><span>GitHub 作品集</span></a>
+      </nav>
+    </div>
+
+    <div class="art" aria-hidden="false">
+      <div class="ring" aria-hidden="true"></div>
+      <div class="big" aria-hidden="true">H</div>
+      <div class="vert" aria-hidden="true">大丈夫<small class="eng">Nothing to worry about</small></div>
+      <a class="burst" id="burst" href="#hermes"><span><b class="eng">Hermes says</b><span id="burstTx">…</span></span></a>
+    </div>
+  </div>
+
+  <div class="in foot eng">
+    <div class="barcode" aria-hidden="true"></div>
+    <span id="clockLine">TAIPEI --:--</span>
+    <a class="cue" href="#contents"><span>Scroll</span><i></i></a>
+  </div>
+</section>
+
+<!-- ============ CONTENTS ============ -->
+<section class="sec" id="contents">
+  <div class="wrap">
+    <div class="st ani"><h2 class="eng">Contents</h2><span class="min">目次</span></div>
+    <div class="rows">
+      <a class="ani" href="/archives/"><span class="no eng">01</span><span class="cat">Blog</span><span class="ttl">部落格歸檔<small>全部文章，從 2020 年開始</small></span><span class="ar">▸</span><div class="aura"><i class="g1"></i><i class="g2"></i><i class="g3"></i><i class="g4"></i></div></a>
+      <a class="ani" href="https://github.com/shangoyanyi" target="_blank" rel="noopener"><span class="no eng">02</span><span class="cat">GitHub</span><span class="ttl">GitHub 作品集<small>shangoyanyi · 程式碼與專案</small></span><span class="ar">▸</span><div class="aura"><i class="g1"></i><i class="g2"></i><i class="g3"></i><i class="g4"></i></div></a>
+      <a class="ani" href="#hermes"><span class="no eng">03</span><span class="cat">Hermes</span><span class="ttl">Hermes 編輯部<small>輸入指令，跟信使代理說話</small></span><span class="ar">▸</span><div class="aura"><i class="g1"></i><i class="g2"></i><i class="g3"></i><i class="g4"></i></div></a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COLUMN ============ -->
+<section class="sec color" id="column">
+  <div class="aura"><i class="g1"></i><i class="g2"></i><i class="g3"></i><i class="g4"></i></div>
+  <div class="tone"></div>
+  <div class="in wrap col2">
+    <div class="st ani"><h2 class="eng">Column</h2><span class="min">連載</span></div>
+    <div class="cards">
+      <a class="card ani" href="/2020/03/25/Git-Github-%E6%95%99%E5%AD%B8%E6%89%8B%E5%86%8A/">
+        <div class="pic"><div class="aura"><i class="g1"></i><i class="g2"></i><i class="g3"></i><i class="g4"></i></div><span class="tg">NEW</span><span class="n eng">03</span></div>
+        <div class="tx"><time class="eng">2020.03.25</time><h3>Git &amp; Github 教學手冊</h3><p>想找完整的 Git 與 GitHub 學習資源？六角學院的手冊含影片、講義與實作練習。</p></div>
+      </a>
+      <a class="card ani" href="/2020/03/02/hello-world/">
+        <div class="pic"><div class="aura"><i class="g1"></i><i class="g2"></i><i class="g3"></i><i class="g4"></i></div><span class="n eng">02</span></div>
+        <div class="tx"><time class="eng">2020.03.02</time><h3>Hello World</h3><p>Hexo 的第一篇文章：快速開始、建立文章、啟動伺服器與部署。</p></div>
+      </a>
+      <a class="card ani" href="/2020/02/25/my-first-hexo-article/">
+        <div class="pic"><div class="aura"><i class="g1"></i><i class="g2"></i><i class="g3"></i><i class="g4"></i></div><span class="n eng">01</span></div>
+        <div class="tx"><time class="eng">2020.02.25</time><h3>我的第一篇 HEXO 文章</h3><p>摸索一個上午，終於把 Hexo 與 GitHub Pages 的基礎環境搭起來了。</p></div>
+      </a>
+    </div>
+    <a class="more eng ani" href="/archives/">More</a>
+  </div>
+</section>
+
+<!-- ============ HERMES ============ -->
+<section class="sec" id="hermes">
+  <div class="wrap">
+    <div class="st ani"><h2 class="eng">Hermes</h2><span class="min">編輯部</span></div>
+    <div class="hermes ani">
+      <div class="who">
+        <div class="eng">Messenger agent</div>
+        <h3 class="eng">Hermes</h3>
+        <p>Hikari's 的信使代理。目前只聽得懂指令，輸入 help 查看清單。</p>
+      </div>
+      <div>
+        <div id="chat" aria-live="polite"></div>
+        <form class="cmd" id="form" autocomplete="off">
+          <span>&gt;</span>
+          <input id="in" type="text" placeholder="對 Hermes 說點什麼…" aria-label="指令輸入" enterkeyhint="send">
+          <button id="send" type="submit" class="eng">Send</button>
+        </form>
+        <div class="chips" id="chips"></div>
       </div>
     </div>
-    <div class="col-t mono rv" style="--d:.6s">Boot log</div>
-    <div class="plate rv" style="--d:.75s"><div id="boot" aria-live="polite"></div></div>
-  </aside>
+  </div>
+</section>
 
-  <!-- CENTER: Hermes + conversation -->
-  <section class="col center" aria-label="Hermes">
-    <div id="slot" aria-hidden="true"></div>
-    <div class="name rv" style="--d:.2s">
-      <h1 id="title">HERMES</h1>
-      <div class="sub mono">Messenger agent // 為 Hikari's 待命中</div>
-    </div>
-    <div class="plate rv" style="--d:1s">
-      <div class="voice" id="voice" aria-hidden="true"></div>
-      <div id="chat" aria-live="polite"></div>
-    </div>
-    <form class="cmd rv" id="form" style="--d:1.2s" autocomplete="off">
-      <span class="pr">&gt;</span>
-      <input id="in" type="text" placeholder="對 Hermes 說點什麼…" aria-label="指令輸入" enterkeyhint="send">
-      <button id="send" type="submit">Send</button>
-    </form>
-    <div class="chips rv" style="--d:1.35s" id="chips"></div>
-  </section>
-
-  <!-- RIGHT: modules -->
-  <aside class="col right" aria-label="模組">
-    <div class="col-t mono rv" style="--d:.3s">Modules // 模組</div>
-    <div id="mods" style="display:flex;flex-direction:column;gap:14px"></div>
-  </aside>
-</main>
-<noscript><style>.rv{opacity:1!important;transform:none!important}</style></noscript>
+<footer>
+  <div class="wrap">
+    <div><div class="big2 eng">Hikari's</div><p>Nothing to worry about.</p></div>
+    <div class="r"><p>© 2020–<span id="yr">2026</span> Hikari. All rights reserved.<br>Built with Hexo · Hosted on GitHub Pages</p></div>
+  </div>
+</footer>
 
 <script>
 (function(){
   "use strict";
   var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   var $ = function(id){return document.getElementById(id)};
-  var root = $("root");
-
-  /* ================= 可編輯的設定：模組與指令 ================= */
-  var MODULES = [
-    {id:"MOD-01", name:"部落格", desc:"最新：Git & Github 教學手冊 · 2020.03.25", href:"/archives/"},
-    {id:"MOD-02", name:"GitHub", desc:"shangoyanyi · 程式碼與專案", href:"https://github.com/shangoyanyi", ext:true},
-    {id:"MOD-03", empty:true}
-  ];
-  var NAME = "先輩";   // Hermes 對你的稱呼
-
-  /* ================= 模組卡 ================= */
-  var modsEl = $("mods");
-  MODULES.forEach(function(m,i){
-    var d = (.5 + i*.18)+"s";
-    if(m.empty){
-      var e = document.createElement("div"); e.className="plate mod empty rv"; e.style.setProperty("--d",d);
-      e.innerHTML='<div class="top mono"><b>'+m.id+'</b><span>SLOT EMPTY</span></div>';
-      modsEl.appendChild(e); return;
-    }
-    var a = document.createElement("a"); a.className="plate mod rv"; a.style.setProperty("--d",d); a.href=m.href;
-    if(m.ext){a.target="_blank"; a.rel="noopener"}
-    a.innerHTML='<div class="top mono"><b>'+m.id+'</b><span>'+(m.ext?"EXTERNAL":"INTERNAL")+'</span></div>'+
-                '<h2>'+m.name+' <span class="arrow">▸</span></h2><p>'+m.desc+'</p>';
-    modsEl.appendChild(a);
-  });
-
-  /* ================= 時間 / 狀態 ================= */
-  function taipei(){return new Date(Date.now() + new Date().getTimezoneOffset()*60000 + 8*3600000)}
   var p2 = function(n){return (n<10?"0":"")+n};
-  var t0 = Date.now();
-  function tick(){
-    var d = taipei(), s = p2(d.getHours())+":"+p2(d.getMinutes())+":"+p2(d.getSeconds());
-    $("clock").textContent = s; $("clock2").textContent = s;
-    $("date").textContent = d.getFullYear()+"."+p2(d.getMonth()+1)+"."+p2(d.getDate());
-    var u = Math.floor((Date.now()-t0)/1000);
-    $("uptime").textContent = p2(Math.floor(u/60))+":"+p2(u%60);
-  }
-  tick(); setInterval(tick,1000);
-  var statuses=["LINK ESTABLISHED","ALL SYSTEMS NOMINAL","NOTHING TO WORRY ABOUT","STANDING BY"], si=0;
-  setInterval(function(){si=(si+1)%statuses.length;$("status").textContent=statuses[si]},4000);
+  function taipei(){return new Date(Date.now()+new Date().getTimezoneOffset()*60000+8*3600000)}
+  var NAME = "先輩";   // Hermes 對你的稱呼；公開頁面想中性一點就改成「你」
 
-  var grid=$("grid"), px=0, py=0;
-  window.addEventListener("pointermove",function(e){
-    $("mx").textContent=("0000"+Math.round(e.clientX)).slice(-4);
-    $("my").textContent=("0000"+Math.round(e.clientY)).slice(-4);
-    px=(e.clientX/innerWidth-.5)*2; py=(e.clientY/innerHeight-.5)*2;
-    grid.style.transform="translate("+(-px*8)+"px,"+(-py*8)+"px)";
-  },{passive:true});
+  /* starburst on the speech balloon */
+  (function(){
+    var pts=[],n=22;for(var i=0;i<n*2;i++){var a=i/(n*2)*Math.PI*2, r=i%2?44:50;pts.push((50+Math.cos(a)*r).toFixed(1)+"% "+(50+Math.sin(a)*r).toFixed(1)+"%")}
+    $("burst").style.clipPath="polygon("+pts.join(",")+")";
+  })();
 
-  /* ================= 聲紋 ================= */
-  var voice=$("voice"), bars=[];
-  for(var i=0;i<28;i++){var b=document.createElement("i");voice.appendChild(b);bars.push(b)}
-  var speaking=false;
-  setInterval(function(){
-    bars.forEach(function(b){b.style.height=(speaking? 3+Math.random()*13 : 2+Math.random()*2)+"px"});
-  },90);
+  /* dates */
+  (function(){var d=taipei();$("issue").textContent="ISSUE "+d.getFullYear()+"."+p2(d.getMonth()+1)+"."+p2(d.getDate());$("yr").textContent=d.getFullYear()})();
+  function clk(){var d=taipei();$("clockLine").textContent="TAIPEI "+p2(d.getHours())+":"+p2(d.getMinutes())}
+  clk(); setInterval(clk,30000);
 
-  /* ================= 對話 ================= */
+  /* scroll reveal, once at 70% of viewport */
+  var els=[].slice.call(document.querySelectorAll(".ani"));
+  if("IntersectionObserver" in window && !reduce){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){
+      if(e.isIntersecting){var el=e.target, i=els.indexOf(el); el.style.transitionDelay=(.2+(i%4)*.1)+"s"; el.classList.add("on"); io.unobserve(el)}})},{rootMargin:"0px 0px -30% 0px"});
+    els.forEach(function(e){io.observe(e)});
+  } else els.forEach(function(e){e.classList.add("on")});
+
+  /* ================= Hermes：本地指令（公開頁面不接後端） ================= */
   var chat=$("chat"), queue=[], busy=false;
+  function greeting(){var h=taipei().getHours();return h<5?"夜深了":h<11?"早安":h<14?"午安":h<18?"午後好":"晚安"}
   function addMsg(who,text,instant){
     var el=document.createElement("div"); el.className="msg "+(who==="ai"?"ai":"me");
-    var w=document.createElement("span"); w.className="who"; w.textContent=who==="ai"?"HERMES":"YOU"; el.appendChild(w);
+    var w=document.createElement("span"); w.className="w eng"; w.textContent=who==="ai"?"HERMES":"YOU"; el.appendChild(w);
     var tx=document.createElement("span"); el.appendChild(tx); chat.appendChild(el);
     while(chat.children.length>14) chat.removeChild(chat.firstChild);
     chat.scrollTop=chat.scrollHeight;
     if(who!=="ai"||instant||reduce){tx.textContent=text;return Promise.resolve()}
-    el.classList.add("typing"); speaking=true;
-    return new Promise(function(res){
-      var i=0; (function step(){
-        i+=1; tx.textContent=text.slice(0,i); chat.scrollTop=chat.scrollHeight;
-        if(i<text.length) setTimeout(step, 22+Math.random()*26);
-        else {el.classList.remove("typing"); speaking=false; res()}
-      })();
-    });
+    el.classList.add("typing");
+    return new Promise(function(res){var i=0;(function step(){i++;tx.textContent=text.slice(0,i);chat.scrollTop=chat.scrollHeight;
+      if(i<text.length)setTimeout(step,22+Math.random()*26);else{el.classList.remove("typing");res()}})()});
   }
   function say(lines){
     (Array.isArray(lines)?lines:[lines]).forEach(function(l){queue.push(l)});
-    if(busy) return; busy=true;
-    (function next(){
-      if(!queue.length){busy=false;return}
-      var l=queue.shift(); addMsg("ai",l).then(function(){setTimeout(next,260)});
-    })();
+    if(busy)return; busy=true;
+    (function next(){if(!queue.length){busy=false;return}addMsg("ai",queue.shift()).then(function(){setTimeout(next,260)})})();
   }
-
-  function greeting(){
-    var h=taipei().getHours();
-    return h<5?"夜深了":h<11?"早安":h<14?"午安":h<18?"午後好":"晚安";
-  }
-
-  var COMMANDS = {
-    help:    {alias:["說明","幫助","?","指令"], run:function(){return ["我現在聽得懂這些指令：","blog 前往部落格 · github 前往 GitHub · time 現在時間 · about 關於這裡 · hello 打招呼 · clear 清除對話"]}},
-    hello:   {alias:["hi","你好","嗨","哈囉","hey"], run:function(){return [greeting()+"，"+NAME+"。系統一切正常。"]}},
-    time:    {alias:["時間","幾點","now"], run:function(){var d=taipei();return ["台北時間 "+p2(d.getHours())+":"+p2(d.getMinutes())+":"+p2(d.getSeconds())+"。"]}},
-    about:   {alias:["關於","你是誰","who"], run:function(){return ["我是 Hermes，Hikari's 這個節點的信使代理。這裡是你的入口，不是部落格，部落格只是其中一個模組。","目前我還沒接上語言模型，只聽得懂指令；之後要接上大腦，只要換掉這一段就行。"]}},
-    blog:    {alias:["部落格","文章","archives","歸檔"], run:function(){go("/archives/");return ["開啟部落格歸檔。"]}},
-    github:  {alias:["git","程式碼"], run:function(){go("https://github.com/shangoyanyi",true);return ["開啟 GitHub。"]}},
-    clear:   {alias:["清除","cls"], run:function(){chat.innerHTML="";return []}}
+  function go(url,ext){setTimeout(function(){if(ext)window.open(url,"_blank","noopener");else location.href=url},900)}
+  var COMMANDS={
+    help:{alias:["說明","幫助","?","指令"],run:function(){return ["我現在聽得懂這些指令：","blog 前往部落格 · github 前往 GitHub · time 現在時間 · about 關於這裡 · hello 打招呼 · clear 清除對話"]}},
+    hello:{alias:["hi","你好","嗨","哈囉","hey"],run:function(){return [greeting()+"，"+NAME+"。這一期也請多指教。"]}},
+    time:{alias:["時間","幾點","now"],run:function(){var d=taipei();return ["台北時間 "+p2(d.getHours())+":"+p2(d.getMinutes())+":"+p2(d.getSeconds())+"。"]}},
+    about:{alias:["關於","你是誰","who"],run:function(){return ["我是 Hermes，這本雜誌的信使代理。這裡是 Hikari's 的入口，部落格只是其中一個連載。","目前還沒接上語言模型，只聽得懂指令。"]}},
+    blog:{alias:["部落格","文章","archives","歸檔"],run:function(){go("/archives/");return ["翻到部落格連載。"]}},
+    github:{alias:["git","程式碼"],run:function(){go("https://github.com/shangoyanyi",true);return ["開啟 GitHub。"]}},
+    clear:{alias:["清除","cls"],run:function(){chat.innerHTML="";return []}}
   };
-  function go(url,ext){setTimeout(function(){ if(ext) window.open(url,"_blank","noopener"); else location.href=url },900)}
-  function find(q){
-    q=q.trim().toLowerCase();
-    for(var k in COMMANDS){ if(k===q||COMMANDS[k].alias.indexOf(q)>-1) return COMMANDS[k] }
-    return null;
-  }
+  function find(q){q=q.trim().toLowerCase();for(var k in COMMANDS){if(k===q||COMMANDS[k].alias.indexOf(q)>-1)return COMMANDS[k]}return null}
   function handle(raw){
-    var q=raw.trim(); if(!q) return;
-    addMsg("me",q,true);
+    var q=raw.trim(); if(!q)return; addMsg("me",q,true);
     var c=find(q);
-    if(c){var out=c.run(); if(out.length) say(out)}
+    if(c){var out=c.run();if(out.length)say(out)}
     else say(["收到：「"+q.slice(0,40)+"」。我還沒接上語言模型，暫時只能執行指令，輸入 help 看清單。"]);
   }
-  var hist=[], hi=0, inp=$("in");
-  $("form").addEventListener("submit",function(e){
-    e.preventDefault(); var v=inp.value; if(!v.trim())return;
-    hist.push(v); hi=hist.length; inp.value=""; handle(v);
-  });
+  var hist=[],hi=0,inp=$("in");
+  $("form").addEventListener("submit",function(e){e.preventDefault();var v=inp.value;if(!v.trim())return;hist.push(v);hi=hist.length;inp.value="";handle(v)});
   inp.addEventListener("keydown",function(e){
     if(e.key==="ArrowUp"&&hist.length){hi=Math.max(0,hi-1);inp.value=hist[hi];e.preventDefault()}
     if(e.key==="ArrowDown"&&hist.length){hi=Math.min(hist.length,hi+1);inp.value=hist[hi]||"";e.preventDefault()}
   });
   ["help","blog","github","time","about"].forEach(function(c){
     var b=document.createElement("button");b.type="button";b.className="chip";b.textContent=c;
-    b.addEventListener("click",function(){handle(c)}); $("chips").appendChild(b);
+    b.addEventListener("click",function(){handle(c)});$("chips").appendChild(b);
   });
 
-  /* ================= 開機序列 ================= */
-  var BOOT=["載入核心模組","掃描全息投影","同步時間（台北）","掛載模組 × "+MODULES.filter(function(m){return !m.empty}).length,"建立連線","HERMES 已上線"];
-  function boot(){
-    var el=$("boot"), i=0;
-    (function next(){
-      if(i>=BOOT.length){
-        setTimeout(function(){say([greeting()+"，"+NAME+"。我是 Hermes，這裡是你的入口。","部落格在右邊的模組裡；想問我什麼，直接輸入，或點下面的指令。"])},500);
-        return;
-      }
-      var d=document.createElement("div"); d.className="ok"; d.textContent=BOOT[i++]; el.appendChild(d);
-      el.scrollTop=el.scrollHeight;
-      setTimeout(next, reduce?0:380);
-    })();
-  }
-
-  /* ================= 標題滾動鎖定 ================= */
-  var titleEl=$("title"), FT="HERMES", GL="01ABCDEF#%$<>/\\|=+*";
-  function rollTitle(){
-    if(reduce){titleEl.textContent=FT;return}
-    var f=0,iv=setInterval(function(){
-      f++; var lc=Math.min(FT.length,Math.floor((f-6)/3)), out="";
-      for(var i=0;i<FT.length;i++) out += lc>FT.length-1-i ? FT[i] : GL[(Math.random()*GL.length)|0];
-      titleEl.textContent=out;
-      if(lc>=FT.length){clearInterval(iv);titleEl.textContent=FT;titleEl.classList.add("lock");setTimeout(function(){titleEl.classList.remove("lock")},450)}
-    },42);
-  }
-
-  /* ================= Canvas：Hermes 信使杖全息線框 =================
-     原創線框：飛翼 + 雙蛇纏繞的信使杖 + 頂端光球 + 投影底座（非任何品牌或既有 logo） */
-  var cv=$("cv"), ctx=cv.getContext("2d"), slot=$("slot"), W=0,H=0,DPR=1;
-  function resize(){DPR=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0)}
-  resize(); addEventListener("resize",resize);
-
-  var parts=[];
-  function add(l,hot,k){parts.push({l:l,hot:!!hot,k:k||0})}
-  function circ(r,y,n,cx,cz){var o=[];for(var i=0;i<=n;i++){var a=i/n*Math.PI*2;o.push([(cx||0)+Math.cos(a)*r,y,(cz||0)+Math.sin(a)*r])}return o}
-  (function build(){
-    // staff
-    var R=.045, y0=-.95, y1=.88, N=14;
-    for(var r=0;r<=10;r++) add(circ(R,y0+(y1-y0)*r/10,N));
-    for(var i=0;i<8;i++){var a=i/8*Math.PI*2;add([[Math.cos(a)*R,y0,Math.sin(a)*R],[Math.cos(a)*R,y1,Math.sin(a)*R]])}
-    // orb on top (lat/long)
-    var oy=1.0, orr=.13;
-    for(var la=-2;la<=2;la++){var yy=oy+la*orr*.42, rr=Math.sqrt(Math.max(0,orr*orr-(la*orr*.42)*(la*orr*.42)));add(circ(rr,yy,20),true)}
-    for(var lo=0;lo<6;lo++){var ang=lo/6*Math.PI,pts=[];for(var s=0;s<=16;s++){var t=s/16*Math.PI*2;pts.push([Math.cos(t)*orr*Math.cos(ang),oy+Math.sin(t)*orr,Math.cos(t)*orr*Math.sin(ang)])}add(pts,true)}
-    // two snakes (helices, opposite phase) + heads
-    [0,Math.PI].forEach(function(ph){
-      var pts=[],turns=3.2,rad=.16,n=90;
-      for(var i=0;i<=n;i++){var t=i/n,a=ph+t*turns*Math.PI*2,y=-.62+t*1.24;pts.push([Math.cos(a)*rad,y,Math.sin(a)*rad])}
-      add(pts);
-      // second line offset for a ribbon-like body
-      var pts2=[];for(var j=0;j<=n;j++){var t2=j/n,a2=ph+t2*turns*Math.PI*2,y2=-.62+t2*1.24-.035;pts2.push([Math.cos(a2)*rad,y2,Math.sin(a2)*rad])}
-      add(pts2);
-      // head: small diamond at the top end
-      var e=pts[n],hx=e[0]*1.7,hz=e[2]*1.7;
-      add([[e[0],e[1],e[2]],[hx,e[1]+.05,hz],[hx*1.05,e[1]+.1,hz*1.05],[e[0],e[1]+.02,e[2]]],true);
-    });
-    // wings: feathers as curved fans in the x–y plane, two rows
-    function feather(s,rootY,L,phi,k){
-      var rx=s*.06, ry=rootY, tx=rx+s*L*Math.cos(phi), ty=ry+L*Math.sin(phi);
-      var cxp=rx+s*L*.58*Math.cos(phi+.38), cyp=ry+L*.58*Math.sin(phi+.38), pts=[];
-      for(var i=0;i<=10;i++){var t=i/10,u=1-t;pts.push([u*u*rx+2*u*t*cxp+t*t*tx, u*u*ry+2*u*t*cyp+t*t*ty, -.02*t])}
-      return pts;
-    }
-    [-1,1].forEach(function(s){
-      var tips=[], tips2=[];
-      for(var i=0;i<9;i++){
-        var t=i/8, phi=.62-t*1.0, L=.92-.26*t;       // outer feathers longer, fan downward
-        var f=feather(s,.66,L,phi); add(f,i===0); tips.push(f[10]);
-        var f2=feather(s,.62,L*.62,phi-.05); add(f2); tips2.push(f2[10]);
-      }
-      add(tips,true); add(tips2);                       // wing outlines
-      // leading edge bone
-      var bone=[];for(var b=0;b<=10;b++){var tb=b/10;bone.push([s*(.06+.62*tb), .66+.30*Math.sin(tb*1.4)-.02*tb, 0])}
-      add(bone,true);
-    });
-  })();
-
-  var HMIN=-.95, HMAX=1.13;
-  function frame(t){
-    var sr=slot.getBoundingClientRect();
-    var cx=sr.left+sr.width/2, cy=sr.top+sr.height*.50;
-    var size=Math.max(40,Math.min(sr.width/3.4, sr.height/2.35));
-    var ts=t/1000, yaw=ts*.38+px*.3, pitch=.42-py*.05;
-    var cyw=Math.cos(yaw),syw=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
-    var fov=3.4, bob=Math.sin(ts*1.3)*.025;
-    var intro=reduce?1:Math.min(1,ts/2.8);
-    var scanY=HMIN-.1+intro*(HMAX-HMIN+.2);            // sweep bottom → top in model y
-    var glow=speaking?1:0; frame.g=(frame.g||0)+(glow-(frame.g||0))*.12; var g=frame.g;
-
-    ctx.clearRect(0,0,W,H); ctx.globalCompositeOperation="lighter";
-    function proj(p){
-      var x=p[0],y=p[1]+bob,z=p[2];
-      var x1=x*cyw-z*syw, z1=x*syw+z*cyw;
-      var y2=y*cp-z1*sp, z2=y*sp+z1*cp;
-      var k=fov/(fov+z2);
-      return {x:cx+x1*size*k, y:cy-(y2-.06)*size*k, z:z2};
-    }
-
-    // projector pad
-    var padY=-1.08, padA=Math.min(1,intro*1.6);
-    function ring(r,dash,a,rot){
-      ctx.beginPath();
-      for(var i=0;i<=96;i++){var an=i/96*Math.PI*2+rot,q=proj([Math.cos(an)*r,padY,Math.sin(an)*r]);if(i===0)ctx.moveTo(q.x,q.y);else ctx.lineTo(q.x,q.y)}
-      ctx.setLineDash(dash||[]);ctx.strokeStyle="rgba(77,230,255,"+a+")";ctx.lineWidth=1.2;ctx.stroke();ctx.setLineDash([]);
-    }
-    ring(1.25,null,.55*padA,0); ring(1.04,[6,7],.45*padA,ts*.4); ring(.8,null,.25*padA,0); ring(1.5,[2,10],.28*padA,-ts*.2);
-    // speaking pulse ring
-    if(g>.02){var pr=.8+((ts*.9)%1)*.7; ring(pr,null,.5*g*(1-((pr-.8)/.7)),0)}
-    for(var i=0;i<48;i++){
-      var a=i/48*Math.PI*2+ts*.15, r0=1.25, r1=i%4===0?1.42:1.34;
-      var q0=proj([Math.cos(a)*r0,padY,Math.sin(a)*r0]), q1=proj([Math.cos(a)*r1,padY,Math.sin(a)*r1]);
-      ctx.beginPath();ctx.moveTo(q0.x,q0.y);ctx.lineTo(q1.x,q1.y);ctx.strokeStyle="rgba(77,230,255,"+(.35*padA)+")";ctx.lineWidth=1;ctx.stroke();
-    }
-    // projector beam
-    var b0=proj([0,padY,0]), bl=proj([-1.04,padY,0]), br=proj([1.04,padY,0]);
-    var gr=ctx.createLinearGradient(0,b0.y,0,b0.y-size*2.1);
-    gr.addColorStop(0,"rgba(77,230,255,"+(.15*padA)+")"); gr.addColorStop(1,"rgba(77,230,255,0)");
-    ctx.fillStyle=gr; ctx.beginPath(); ctx.moveTo(bl.x,bl.y); ctx.lineTo(br.x,br.y); ctx.lineTo(b0.x+size*.35,b0.y-size*2.1); ctx.lineTo(b0.x-size*.35,b0.y-size*2.1); ctx.closePath(); ctx.fill();
-
-    // wireframe: depth fog + scan reveal; two passes (glow, crisp)
-    for(var pass=0;pass<2;pass++){
-      for(var pi=0;pi<parts.length;pi++){
-        var part=parts[pi], pts=part.l, prev=null, prevY=0;
-        for(var j=0;j<pts.length;j++){
-          var q=proj(pts[j]), my=pts[j][1];
-          if(prev){
-            var ym=(my+prevY)/2, vis=reduce||ym<scanY;
-            if(vis){
-              var fog=.25+.75*Math.max(0,Math.min(1,(1.2-(q.z+prev.z)/2)/2));
-              var front=!reduce&&Math.abs(ym-scanY)<.05, hot=part.hot||front;
-              var col=hot?"233,253,255":"77,230,255", al=((hot?.95:.78)+g*.2)*fog;
-              ctx.beginPath();ctx.moveTo(prev.x,prev.y);ctx.lineTo(q.x,q.y);
-              if(pass===0){ctx.strokeStyle="rgba("+col+","+(al*(.22+g*.25))+")";ctx.lineWidth=5+g*2}
-              else{ctx.strokeStyle="rgba("+col+","+Math.min(1,al)+")";ctx.lineWidth=1.3}
-              ctx.stroke();
-            }
-          }
-          prev=q; prevY=my;
-        }
-      }
-    }
-    // scan plane ellipse during intro
-    if(!reduce&&intro<1){
-      ctx.beginPath();
-      for(var s=0;s<=64;s++){var sa=s/64*Math.PI*2,q2=proj([Math.cos(sa)*1.0,scanY,Math.sin(sa)*1.0]);if(s===0)ctx.moveTo(q2.x,q2.y);else ctx.lineTo(q2.x,q2.y)}
-      ctx.strokeStyle="rgba(233,253,255,.85)";ctx.lineWidth=1.4;ctx.stroke();
-    }
-    $("scanpct").textContent=Math.round(intro*100)+"%";
-
-    // target-lock brackets hopping between wing / orb / core
-    var lt=(ts*.35)%3, wi=Math.floor(lt), k=lt-wi, tg=[[0,1.0,0],[.6,.78,0],[0,0,0]][wi], tq=proj(tg);
-    var e=Math.min(1,k*5), s2=22+(1-e)*30, L=8;
-    ctx.save();ctx.translate(tq.x,tq.y);ctx.rotate(e>=1?0:(1-e)*Math.PI/4);
-    ctx.strokeStyle="rgba(233,253,255,"+(intro>=1?.85:0)+")";ctx.lineWidth=1.5;
-    [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(function(c){ctx.beginPath();ctx.moveTo(c[0]*s2,c[1]*(s2-L));ctx.lineTo(c[0]*s2,c[1]*s2);ctx.lineTo(c[0]*(s2-L),c[1]*s2);ctx.stroke()});
-    ctx.restore();
-
-    ctx.globalCompositeOperation="source-over";
-    if(!reduce) requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
-
-  /* ================= 啟動 ================= */
-  requestAnimationFrame(function(){ root.classList.add("on"); rollTitle(); setTimeout(boot, reduce?0:600); });
+  /* 封面對話框 + 開場問候（不自動捲動頁面） */
+  var hello=greeting()+"，"+NAME+"。要不要翻開這一期？";
+  $("burstTx").textContent=hello;
+  addMsg("ai",hello,true);
+  addMsg("ai","部落格在上面的目次與連載；想問我什麼，直接輸入指令。",true);
 })();
 </script>
 </body>
